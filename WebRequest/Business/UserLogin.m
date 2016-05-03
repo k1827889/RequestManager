@@ -9,6 +9,7 @@
 #import "UserLogin.h"
 #import "../../ProConst.h"
 #import "../../../MainDlg/My/Data/UserData.h"
+#import "../../../AppDelegate.h"
 
 @implementation UserLogin
 
@@ -26,22 +27,17 @@
     //保存回调
     self.successBlock = successBlock;
     
-    //传入的参数
-    NSMutableDictionary *parameters = [[NSMutableDictionary alloc]init];
-    [parameters setObject:m_strUserName forKey:@"username"];
-    [parameters setObject:m_strPassword forKey:@"password"];
-    
-    [self SetReqUrl:LoginUrl Route:nil ReqParameters:parameters];
-    [self SetRequestType:PostRequest];
-    
-    ZWeakSelf;
-    [self StartRequest:^(id responseObject)
+    AppDelegate *app = [[UIApplication sharedApplication]delegate];
+    //发送请求
+    [app.m_ProManager.m_RequestManager UserLogin:m_strUserName Password:m_strPassword success:^(id responseObject)
      {
+         //解析需要的数据实体
+         NSDictionary *dcattributes = [responseObject valueForKeyPath:@"data"];
+         
          //分析数据
-         [weakSelf ParseData:responseObject];
+         [self ParseData:dcattributes];
      }
-     failure:failBlock
-     ];
+     failure:failBlock];
 }
 
 /**

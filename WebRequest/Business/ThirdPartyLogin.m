@@ -9,6 +9,7 @@
 #import "ThirdPartyLogin.h"
 #import "../../ProConst.h"
 #import "../../../MainDlg/My/Data/UserData.h"
+#import "../../../AppDelegate.h"
 
 @implementation ThirdPartyLogin
 
@@ -37,17 +38,17 @@
     [parameters setObject:m_strUserName forKey:@"nickname"];
     [parameters setObject:m_strUserImgUrl forKey:@"headimgurl"];
     
-    [self SetReqUrl:ThirdPartyLoginUrl Route:nil ReqParameters:parameters];
-    [self SetRequestType:PostRequest];
-    
-    ZWeakSelf;
-    [self StartRequest:^(id responseObject)
+    AppDelegate *app = [[UIApplication sharedApplication]delegate];
+    //发送请求
+    [app.m_ProManager.m_RequestManager ThirdPartyLogin:m_nOpenType OpenID:m_strOpenID UserName:m_strUserName UserImgUrl:m_strUserImgUrl success:^(id responseObject)
      {
+         //解析需要的数据实体
+         NSDictionary *dcattributes = [responseObject valueForKeyPath:@"data"];
+         
          //分析数据
-         [weakSelf ParseData:responseObject];
+         [self ParseData:dcattributes];
      }
-     failure:failBlock
-     ];
+     failure:failBlock];
 }
 
 /**
